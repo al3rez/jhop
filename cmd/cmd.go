@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 
-	"github.com/azbshiri/jhop/api"
+	"github.com/cooldrip/jhop/api"
 	"github.com/urfave/cli"
 )
 

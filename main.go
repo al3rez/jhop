@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/azbshiri/jhop/cmd"
+	"github.com/cooldrip/jhop/cmd"
 )
 
 type cat struct {
