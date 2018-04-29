@@ -28,7 +28,7 @@ Now you can go to `localhost:6000/recipes` and get the collection:
 }
 ```
 
-or you can just get a single recipe `localhost:6000/recipes/`:
+or you can just get a single recipe `localhost:6000/recipes/1`:
 ```json
 { "id": 1, "prep_time": "1h", "difficulty": "hard" }
 ```
