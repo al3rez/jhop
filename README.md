@@ -18,15 +18,21 @@ Passing the JSON file to `jhop`:
 ~ $ jhop recipes.json
 ```
 
-Now you can go to `localhost:6000/recipes` and get the response:
+Now you can go to `localhost:6000/recipes` and get the collection:
 ```json
 {
   "recipes": [
     { "id": 1, "prep_time": "1h", "difficulty": "hard" },
-    { "id": 1, "prep_time": "15m", "difficulty": "easy" }
+    { "id": 2, "prep_time": "15m", "difficulty": "easy" }
   ]
 }
 ```
+
+or you can just get a single recipe `localhost:6000/recipes/`:
+```json
+{ "id": 1, "prep_time": "1h", "difficulty": "hard" }
+```
+
 
 ## CLI usage
 ```
