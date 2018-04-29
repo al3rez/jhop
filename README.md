@@ -1,6 +1,10 @@
 # jhop
 🏎Create fake REST API in one sec.
 
+## Install
+```
+~ $ go get github.com/cooldrip/jhop
+```
 
 ## Example
 Create a file `recipes.json`:
