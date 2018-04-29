@@ -50,6 +50,7 @@ GLOBAL OPTIONS:
 ```
 
 ## TODO
+- [x] Single resource
 - [ ] Plural routes
 - [ ] Custom routes
 - [ ] Middleware
