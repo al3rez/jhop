@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -17,14 +16,8 @@ import (
 func NewHandler(rs ...io.Reader) (http.Handler, error) {
 	router := mux.NewRouter()
 	for _, r := range rs {
-		data, err := ioutil.ReadAll(r)
-		if err != nil {
-			return nil, errors.Wrap(err, "read failed")
-		}
-
 		var resources map[string]interface{}
-		err = json.Unmarshal(data, &resources)
-		if err != nil {
+		if err := json.NewDecoder(r).Decode(&resources); err != nil {
 			return nil, errors.Wrap(err, "unmarshal failed")
 		}
 
