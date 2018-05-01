@@ -9,7 +9,22 @@ import (
 )
 
 const (
-	file = "{\"recipes\":[{\"difficulty\":\"hard\",\"id\":1,\"prep_time\":\"1h\"},{\"difficulty\":\"easy\",\"id\":2,\"prep_time\":\"15m\"}]}"
+	file = `
+	{
+		"profile": {
+			"name": "foo"
+		},
+		"recipes": [{
+			"difficulty": "hard",
+			"id": 1,
+			"prep_time": "1h"
+		}, {
+			"difficulty": "easy",
+			"id": 2,
+			"prep_time": "15m"
+		}]
+	}
+`
 )
 
 func TestNewServer(t *testing.T) {
@@ -44,6 +59,16 @@ func TestNewServer(t *testing.T) {
 					req:     httptest.NewRequest("GET", "http://localhost/recipes", nil),
 					code:    200,
 					content: file,
+				},
+				check{
+					req:     httptest.NewRequest("GET", "http://localhost/recipes/3", nil),
+					code:    404,
+					content: "",
+				},
+				check{
+					req:     httptest.NewRequest("GET", "http://localhost/profile/3", nil),
+					code:    404,
+					content: "",
 				},
 			},
 		},
