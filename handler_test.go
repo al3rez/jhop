@@ -1,4 +1,4 @@
-package tests
+package jhop
 
 import (
 	"io"
@@ -6,8 +6,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/cooldrip/jhop"
 )
 
 const (
@@ -58,7 +56,7 @@ func TestNewServer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h, err := jhop.NewHandler(tt.file)
+			h, err := NewHandler(tt.file)
 			if tt.wantErr && err == nil {
 				t.Error("expected error")
 				return
