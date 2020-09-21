@@ -86,14 +86,15 @@ COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --port value   Set port (default: "6000")
-   --host value   Set host (default: "localhost")
-   --help, -h     show help
-   --version, -v  print the version
+   --port value    Set port (default: "6000")
+   --host value    Set host (default: "localhost")
+   --routes value  Set routes file
+   --help, -h      show help
+   --version, -v   print the version
 ```
 
 ## TODO
 
 * [x] Single resource
-* [ ] Custom routes
+* [x] Custom routes
 * [ ] Middleware

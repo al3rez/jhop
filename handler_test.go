@@ -2,6 +2,7 @@ package jhop
 
 import (
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -9,11 +10,7 @@ import (
 )
 
 const (
-	file = `
-	{
-		"profile": {
-			"name": "foo"
-		},
+	recipesJSON = `{
 		"recipes": [{
 			"difficulty": "hard",
 			"id": 1,
@@ -23,8 +20,13 @@ const (
 			"id": 2,
 			"prep_time": "15m"
 		}]
-	}
-`
+	}`
+	profileJSON = `{
+		"profile": [{
+			"name": "John Doe",
+			"id": 1
+		}]
+	}`
 )
 
 func TestNewServer(t *testing.T) {
@@ -36,13 +38,16 @@ func TestNewServer(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		file    io.Reader
+		files   []io.ReadCloser
 		wantErr bool
 		checks  []check
 	}{
 		{
-			name:    "provide resources",
-			file:    strings.NewReader(file),
+			name: "provide resources",
+			files: []io.ReadCloser{
+				ioutil.NopCloser(strings.NewReader(recipesJSON)),
+				ioutil.NopCloser(strings.NewReader(profileJSON)),
+			},
 			wantErr: false,
 			checks: []check{
 				check{
@@ -58,7 +63,7 @@ func TestNewServer(t *testing.T) {
 				check{
 					req:     httptest.NewRequest("GET", "http://localhost/recipes", nil),
 					code:    200,
-					content: file,
+					content: recipesJSON,
 				},
 				check{
 					req:     httptest.NewRequest("GET", "http://localhost/recipes/3", nil),
@@ -70,20 +75,41 @@ func TestNewServer(t *testing.T) {
 					code:    404,
 					content: "",
 				},
+				check{
+					req:     httptest.NewRequest("GET", "http://localhost/profiles", nil),
+					code:    200,
+					content: profileJSON,
+				},
+				check{
+					req:     httptest.NewRequest("GET", "http://localhost/profiles/1", nil),
+					code:    200,
+					content: "{\"name\":\"John Doe\",\"id\":1}",
+				},
 			},
 		},
 		{
-			name:    "with error",
-			file:    strings.NewReader("///"),
+			name: "with error",
+			files: []io.ReadCloser{
+				ioutil.NopCloser(strings.NewReader("///")),
+			},
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h, err := NewHandler(tt.file)
+			routes := map[string]string{
+				"/profile/{id}": "/profiles/{id}",
+				"/profile":      "/profiles",
+			}
+			h, err := NewHandlerWithRoutes(routes, tt.files...)
 			if tt.wantErr && err == nil {
 				t.Error("expected error")
+				return
+			}
+
+			if !tt.wantErr && err != nil {
+				t.Errorf("unexpected error: %s", err)
 				return
 			}
 

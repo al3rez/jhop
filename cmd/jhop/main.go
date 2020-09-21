@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -26,6 +27,10 @@ func main() {
 			Value: "localhost",
 			Usage: "Set host",
 		},
+		cli.StringFlag{
+			Name:  "routes",
+			Usage: "Set routes file",
+		},
 	}
 	app.Name = "jhop"
 	app.Usage = "Create fake REST API in one sec."
@@ -34,25 +39,40 @@ func main() {
 		if c.NArg() > 0 {
 			filenames = c.Args()
 		}
-		if len(filenames) > 0 {
-			files := make([]io.Reader, len(filenames))
-			for i, filename := range filenames {
-				f, err := os.Open(filename)
-				if err != nil {
-					return errors.Wrapf(err, "failed to open file %s", filename)
-				}
-				files[i] = f
-			}
 
-			handler, err := jhop.NewHandler(files...)
-			if err != nil {
-				return errors.Wrap(err, "failed to initialize handler")
-			}
-
-			addr := fmt.Sprintf("%s:%s", c.String("host"), c.String("port"))
-			return http.ListenAndServe(addr, handlers.LoggingHandler(os.Stdout, handler))
+		if len(filenames) == 0 {
+			return errors.New("no files listed as arguments")
 		}
-		return nil
+
+		files := make([]io.ReadCloser, len(filenames))
+		for i, filename := range filenames {
+			f, err := os.Open(filename)
+			if err != nil {
+				return errors.Wrap(err, "failed to open file")
+			}
+			files[i] = f
+		}
+
+		routes := make(map[string]string)
+		if c.String("routes") != "" {
+			f, err := os.Open(c.String("routes"))
+			defer f.Close()
+			if err != nil {
+				return errors.Wrap(err, "failed to open file")
+			}
+			if err := json.NewDecoder(f).Decode(&routes); err != nil {
+				return errors.Wrap(err, "failed to unmarshal routes")
+			}
+		}
+
+		handler, err := jhop.NewHandlerWithRoutes(routes, files...)
+		if err != nil {
+			return errors.Wrap(err, "failed to initialize handler")
+		}
+
+		addr := fmt.Sprintf("%s:%s", c.String("host"), c.String("port"))
+		log.Printf("starting server on: %s\n", addr)
+		return http.ListenAndServe(addr, handlers.LoggingHandler(os.Stdout, handler))
 	}
 
 	err := app.Run(os.Args)

@@ -16,7 +16,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("file opening failed: %s", err)
 	}
-	h, err := jhop.NewHandler(f)
+
+	routes := map[string]string{
+		"/recipes/{id}": "/recipes/{id}/show",
+	}
+
+	h, err := jhop.NewHandlerWithRoutes(routes, f)
 	if err != nil {
 		log.Fatalf("handler initialization failed: %s", err)
 	}
@@ -24,7 +29,7 @@ func main() {
 	s := httptest.NewServer(h)
 	defer s.Close()
 
-	resp, err := http.Get(fmt.Sprintf("%s/recipes/1", s.URL))
+	resp, err := http.Get(fmt.Sprintf("%s/recipes/1/show", s.URL))
 	if err != nil {
 		log.Fatalf("request to test server failed: %s", err)
 	}
